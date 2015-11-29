@@ -24,7 +24,9 @@
   "dependencies": {
     "purescript-argonaut-core": "^0.2.0",
     "purescript-generics": "^0.7.0",
-    "purescript-integers": "^0.2.1"
+    "purescript-integers": "^0.2.1",
+    "purescript-rationals": "^0.3.0",
+    "purescript-datetime": "^0.9.1"
   },
   "devDependencies": {
     "purescript-strongcheck-generics": "^0.3.0"

@@ -7,7 +7,7 @@ module Data.Argonaut.Encode
 
 import Prelude
 
-import Data.Argonaut.Core (Json(), jsonNull, fromBoolean, fromNumber, fromString, fromArray, fromObject)
+import Data.Argonaut.Core (Json(), jsonNull, fromBoolean, fromNumber, fromString, fromArray, fromObject, JAssoc(), foldJsonObject, jsonSingletonObject, jsonEmptyObject)
 import Data.Either (Either(..))
 import Data.Foldable (foldr)
 import Data.Generic (Generic, GenericSpine(..), toSpine)
@@ -18,6 +18,10 @@ import Data.Maybe (Maybe(..))
 import Data.String (fromChar)
 import Data.StrMap as SM
 import Data.Tuple (Tuple(..))
+
+import Data.Rational (Rational (..))
+import Data.Ratio (numerator, denominator)
+import Data.Date (Date(), JSDate(), toJSDate)
 
 class EncodeJson a where
   encodeJson :: a -> Json
@@ -88,3 +92,23 @@ instance encodeStrMap :: (EncodeJson a) => EncodeJson (SM.StrMap a) where
 
 instance encodeMap :: (Ord a, EncodeJson a, EncodeJson b) => EncodeJson (M.Map a b) where
   encodeJson = encodeJson <<< M.toList
+
+
+infix 7 :=
+(:=) :: forall a. (EncodeJson a) => String -> a -> JAssoc
+(:=) k v = Tuple k $ encodeJson v
+
+infixr 6 ~>
+(~>) :: forall a. (EncodeJson a) => JAssoc -> a -> Json
+(~>) (Tuple k v) a = foldJsonObject (jsonSingletonObject k v) (SM.insert k v >>> fromObject) (encodeJson a)
+
+instance encodeDate :: EncodeJson Date where
+  encodeJson = fromString <<< dateToISO <<< toJSDate
+
+instance encodeRational :: EncodeJson Rational where
+  encodeJson (Rational rat)
+    =  "denominator" := (denominator rat)
+    ~> "numerator" := (numerator rat)
+    ~> jsonEmptyObject
+
+foreign import dateToISO :: JSDate -> String

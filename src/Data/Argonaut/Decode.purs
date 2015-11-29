@@ -10,7 +10,7 @@ import Prelude
 
 import Control.Alt ((<|>))
 import Control.Bind ((=<<))
-import Data.Argonaut.Core (Json(), foldJsonNull, foldJsonBoolean, foldJsonNumber, foldJsonString, toArray, toNumber, toObject, toString, toBoolean)
+import Data.Argonaut.Core (Json(), foldJsonNull, foldJsonBoolean, foldJsonNumber, foldJsonString, toArray, toNumber, toObject, toString, toBoolean, JObject())
 import Data.Array (zipWithA)
 import Data.Either (either, Either(..))
 import Data.Foldable (find)
@@ -19,11 +19,16 @@ import Data.Int (fromNumber)
 import Data.List (List(..), toList)
 import Data.Map as Map
 import Data.Maybe (maybe, Maybe(..))
+import Data.Maybe.Unsafe (fromJust)
 import Data.String (charAt, toChar)
 import Data.StrMap as M
 import Data.Traversable (traverse, for)
 import Data.Tuple (Tuple(..))
 import Type.Proxy (Proxy(..))
+
+import Data.Rational (Rational (), (%))
+import Data.Date (Date ())
+import Data.Date as Date
 
 class DecodeJson a where
   decodeJson :: Json -> Either String a
@@ -120,3 +125,17 @@ instance decodeMap :: (Ord a, DecodeJson a, DecodeJson b) => DecodeJson (Map.Map
 
 decodeMaybe :: forall a. (DecodeJson a) => Json -> Maybe a
 decodeMaybe json = either (const Nothing) pure $ decodeJson json
+
+
+instance decodeJsonRational :: DecodeJson Rational where
+  decodeJson json = do
+    obj <- decodeJson json
+    denom <- obj .? "denominator"
+    num <- obj .? "numerator"
+    pure (num % denom)
+
+instance decodeJsonDate :: DecodeJson Date where
+  decodeJson = foldJsonString (Left "Not a String") (Right <<< fromJust <<< Date.fromString)
+
+(.?) :: forall a. (DecodeJson a) => JObject -> String -> Either String a
+(.?) o s = maybe (Left $ "Expected field " ++ show s) decodeJson (M.lookup s o)
