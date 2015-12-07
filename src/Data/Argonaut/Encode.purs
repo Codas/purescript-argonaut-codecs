@@ -22,6 +22,7 @@ import Data.Tuple (Tuple(..))
 import Data.Rational (Rational (..))
 import Data.Ratio (numerator, denominator)
 import Data.Date (Date(), JSDate(), toJSDate)
+import qualified Data.BigInt as BigInt
 
 class EncodeJson a where
   encodeJson :: a -> Json
@@ -107,8 +108,8 @@ instance encodeDate :: EncodeJson Date where
 
 instance encodeRational :: EncodeJson Rational where
   encodeJson (Rational rat)
-    =  "denominator" := (denominator rat)
-    ~> "numerator" := (numerator rat)
+    =  "denominator" := BigInt.toNumber (denominator rat)
+    ~> "numerator" := BigInt.toNumber (numerator rat)
     ~> jsonEmptyObject
 
 foreign import dateToISO :: JSDate -> String
