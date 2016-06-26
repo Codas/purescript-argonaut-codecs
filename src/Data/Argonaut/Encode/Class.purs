@@ -1,6 +1,6 @@
 module Data.Argonaut.Encode.Class where
 
-import Prelude
+import Prelude (class Ord, Unit, show, map, id, const, unit, (>>>), (<<<), (<>), (<$>), ($), (#))
 
 import Data.Argonaut.Core (Json(), JAssoc, jsonNull, fromBoolean, fromNumber, fromString, fromArray, fromObject, foldJsonObject, jsonSingletonObject, jsonEmptyObject)
 import Data.Either (Either(), either)
@@ -19,6 +19,7 @@ import Data.Rational (Rational (..))
 import Data.Ratio (numerator, denominator)
 import Data.Date (Date(), year, month, day)
 import Data.BigInt as BigInt
+import Text.Format (width, zeroFill, format)
 
 class EncodeJson a where
   encodeJson :: a -> Json
@@ -97,7 +98,9 @@ instance encodeMap :: (Ord a, EncodeJson a, EncodeJson b) => EncodeJson (M.Map a
 
 
 instance encodeDate :: EncodeJson Date where
-  encodeJson d = fromString (show (fromEnum (year d)) <> show (fromEnum (month d)) <> show (fromEnum (day d)))
+  encodeJson d =
+    let fmt = format (zeroFill <> width 2)
+    in fromString (show (fromEnum (year d)) <> fmt (fromEnum (month d)) <> fmt (fromEnum (day d)))
 
 instance encodeRational :: EncodeJson Rational where
   encodeJson (Rational rat)

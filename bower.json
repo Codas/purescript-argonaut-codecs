@@ -24,6 +24,7 @@
   "dependencies": {
     "purescript-argonaut-core": "^1.0.0",
     "purescript-generics": "^1.0.0",
+    "purescript-format": "master",
     "purescript-integers": "^1.0.0",
     "purescript-rationals": "git://github.com/Codas/purescript-rationals#210cf48",
     "purescript-datetime": "^1.0.0"
