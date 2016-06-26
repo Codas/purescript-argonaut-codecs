@@ -100,7 +100,7 @@ instance encodeMap :: (Ord a, EncodeJson a, EncodeJson b) => EncodeJson (M.Map a
 instance encodeDate :: EncodeJson Date where
   encodeJson d =
     let fmt = format (zeroFill <> width 2)
-    in fromString (show (fromEnum (year d)) <> fmt (fromEnum (month d)) <> fmt (fromEnum (day d)))
+    in fromString (show (fromEnum (year d)) <> "-" <> fmt (fromEnum (month d)) <> "-" <> fmt (fromEnum (day d)))
 
 instance encodeRational :: EncodeJson Rational where
   encodeJson (Rational rat)
